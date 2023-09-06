@@ -39,6 +39,7 @@ const dialogflowFulfillment = (request, response) => {
   }
 
   function test(agent) {
+    console.log(`ENTRANDO EN TEST`);
     let clienteId = agent.parameters.nclient;
     // URL del endpoint
     const url = "https://api.wisphub.net/api/clientes/";
