@@ -1,0 +1,21 @@
+{
+  "name": "megabit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chatbot"
+  ],
+  "author": "jkev",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.5.0",
+    "body-parser": "^1.20.2",
+    "dialogflow-fulfillment": "^0.6.1",
+    "express": "^4.18.2",
+    "firebase-functions": "^4.4.1"
+  }
+}
