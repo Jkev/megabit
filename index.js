@@ -79,10 +79,35 @@ const dialogflowFulfillment = (request, response) => {
       });
   }
 
+  function linkPago(agent) {
+    let clienteId = agent.parameters.nclient;
+    // URL del endpoint
+    const url = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
+
+    // ID del servicio que deseas buscar
+    const servicioId = clienteId;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        // Accede a la respuesta y busca el cliente por su ID de servicio
+        const data = response.data;
+        console.log(data);
+        const urlPago = response.data.url_pago;
+        agent.add(`Este es su link de pago: ${urlPago}`);
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        console.error("Error:", error);
+      });
+  }
+
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
   intentMap.set("client - nclient", test);
+  intentMap.set("client - nclient - yes - pagar", linkPago);
 
   agent.handleRequest(intentMap);
 };
