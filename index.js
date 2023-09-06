@@ -65,7 +65,10 @@ const dialogflowFulfillment = (request, response) => {
           console.log(
             `Nombre del cliente con ID de servicio ${servicioId}: ${nombreCliente}`
           );
-          agent.add(`Nombre del cliente con ID de servicio: ${nombreCliente}`);
+          agent.add(
+            `Nombre del cliente con ID de servicio ${servicioId}: *${nombreCliente}*`
+          );
+          agent.add(`¿Los datos son correctos?`);
         } else {
           agent.add(`Cliente con ID de servicio ${servicioId} no encontrado.`);
         }
