@@ -19,6 +19,14 @@ app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
 
+// Define el valor del encabezado Authorization
+const apiKey = "Api-Key eKYDLLOc.V0PqeGIsb8jFbolijarcews8kZfULFzm";
+
+// Configura los encabezados de la solicitud
+const headers = {
+  Authorization: apiKey,
+};
+
 const dialogflowFulfillment = (request, response) => {
   const agent = new WebhookClient({ request, response });
   function welcome(agent) {
@@ -31,7 +39,43 @@ const dialogflowFulfillment = (request, response) => {
   }
 
   function test(agent) {
-    agent.add(`Esto viene de vercel`);
+    let clienteId = agent.parameters.nclient;
+    // URL del endpoint
+    const url = "https://api.wisphub.net/api/clientes/";
+
+    // ID del servicio que deseas buscar
+    const servicioId = clienteId;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        // Accede a la respuesta y busca el cliente por su ID de servicio
+        const data = response.data;
+        const results = data.results;
+
+        // Busca el cliente con el ID de servicio igual a 9267
+        const clienteEncontrado = results.find(
+          (cliente) => cliente.id_servicio === servicioId
+        );
+
+        if (clienteEncontrado) {
+          const nombreCliente = clienteEncontrado.nombre;
+          console.log(
+            "Nombre del cliente con ID de servicio 9267:",
+            nombreCliente
+          );
+          agent.add(
+            `Nombre del cliente con ID de servicio 9267: ${nombreCliente}`
+          );
+        } else {
+          agent.add("Cliente con ID de servicio 9267 no encontrado.");
+        }
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        console.error("Error:", error);
+      });
   }
 
   let intentMap = new Map();
