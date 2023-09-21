@@ -90,6 +90,36 @@ const dialogflowFulfillment = (request, response) => {
       });
   }
 
+  function getClient(agent) {
+    console.log(`ENTRANDO EN GETCLIENT`);
+    let clienteId = agent.parameters.nclient;
+    // URL del endpoint
+    const url = `https://api.wisphub.net/api/clientes/${clienteId}/perfil`;
+
+    // ID del servicio que deseas buscar
+    const servicioId = clienteId;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        let nombre = response.data.nombre;
+        let apellidos = response.data.apellidos;
+        let nombreCompleto = `${nombre} ${apellidos}`;
+        agent.add(
+          `Nombre del cliente con ID de servicio ${servicioId}: *${nombreCompleto}*`
+        );
+        agent.add(`¿Los datos son correctos? Si/No`);
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        agent.add(
+          `No se encontró el id de cliente ingresado ${servicioId}, si desea puede volver al menu principal escriba la palabra "Menú"`
+        );
+        console.error("Error:", error);
+      });
+  }
+
   function linkPago(agent) {
     let clienteId = agent.parameters.nclient;
     // URL del endpoint
@@ -117,7 +147,7 @@ const dialogflowFulfillment = (request, response) => {
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
-  intentMap.set("client - nclient", test);
+  intentMap.set("client - nclient", getClient);
   intentMap.set("client - nclient - yes - pagar", linkPago);
 
   agent.handleRequest(intentMap);
