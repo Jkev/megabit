@@ -56,6 +56,15 @@ const dialogflowFulfillment = (request, response) => {
         const data = response.data;
         const results = data.results;
         console.log(`Esto es results: ${results}`);
+        const idServiciosEncontrados = [];
+
+        results.forEach((cliente) => {
+          idServiciosEncontrados.push(cliente.id_servicio);
+        });
+
+        console.log(
+          `ESTOS SON TODOS LOS IDS ENCONTRADOS: ${idServiciosEncontrados}`
+        );
 
         // Busca el cliente con el ID de servicio igual a 9267
         const clienteEncontrado = results.find(
