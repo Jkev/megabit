@@ -92,54 +92,143 @@ const dialogflowFulfillment = (request, response) => {
 
   function getClient(agent) {
     console.log(`ENTRANDO EN GETCLIENT`);
-    let clienteId = agent.parameters.nclient;
+    const cel = agent.parameters.cel;
     // URL del endpoint
-    const url = `https://api.wisphub.net/api/clientes/${clienteId}/perfil`;
-
-    // ID del servicio que deseas buscar
-    const servicioId = clienteId;
+    const url = `https://api.wisphub.net/api/clientes/?telefono=${cel}`;
 
     // Realiza la solicitud GET
     return axios
       .get(url, { headers })
       .then((response) => {
-        let nombre = response.data.nombre;
-        let apellidos = response.data.apellidos;
-        let nombreCompleto = `${nombre} ${apellidos}`;
-        agent.add(
-          `Nombre del cliente con ID de servicio ${servicioId}: *${nombreCompleto}*`
-        );
+        const nombre = response.data.results[0].nombre;
+        agent.add(`Nombre del cliente: *${nombre}*`);
         agent.add(`¿Los datos son correctos? Si/No`);
       })
       .catch((error) => {
         // Maneja el error aquí
         agent.add(
-          `No se encontró el id de cliente ingresado ${servicioId}, si desea puede volver al menu principal escriba la palabra "Menú"`
+          `No se encontró el numero celular del cliente ingresado ${servicioId}, un asesor se pondrá en contacto con usted`
+        );
+        console.error("Error:", error);
+      });
+  }
+
+  function getClientEmail(agent) {
+    console.log(`ENTRANDO EN GETCLIENT EMAIL`);
+    const email = agent.parameters.email;
+    // URL del endpoint
+    const url = `https://api.wisphub.net/api/clientes/?email=${email}`;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        const nombre = response.data.results[0].nombre;
+        agent.add(`Nombre del cliente: *${nombre}*`);
+        agent.add(`¿Los datos son correctos? Si/No`);
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        agent.add(
+          `No se encontró el correo electronico del cliente ingresado ${servicioId}, un asesor se pondrá en contacto con usted`
+        );
+        console.error("Error:", error);
+      });
+  }
+
+  function getClientRed(agent) {
+    console.log(`ENTRANDO EN GETCLIENT EMAIL`);
+    const red = agent.parameters.ssid;
+    // URL del endpoint
+    const url = `https://api.wisphub.net/api/clientes/?ssid_router_wifi=${red}`;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        const nombre = response.data.results[0].nombre;
+        agent.add(`Nombre del cliente: *${nombre}*`);
+        agent.add(`¿Los datos son correctos? Si/No`);
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        agent.add(
+          `No se encontró el nombre de red del cliente ingresado ${servicioId}, un asesor se pondrá en contacto con usted`
         );
         console.error("Error:", error);
       });
   }
 
   function linkPago(agent) {
-    let clienteId = agent.parameters.nclient;
+    let cel = agent.parameters.cel;
     // URL del endpoint
-    const url = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
 
-    // ID del servicio que deseas buscar
-    const servicioId = clienteId;
+    const url = `https://api.wisphub.net/api/clientes/?telefono=${cel}`;
 
     // Realiza la solicitud GET
     return axios
       .get(url, { headers })
       .then((response) => {
-        // Accede a la respuesta y busca el cliente por su ID de servicio
-        const data = response.data;
-        console.log(data);
-        const urlPago = response.data.url_pago;
-        agent.add(`Este es su link de pago: ${urlPago}`);
+        const clienteId = response.data.results[0].id_servicio;
+        const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
+
+        // Realiza la solicitud GET
+        return axios
+          .get(urlSaldo, { headers })
+          .then((response) => {
+            // Accede a la respuesta y busca el cliente por su ID de servicio
+            const data = response.data;
+            console.log(data);
+            const urlPago = response.data.url_pago;
+            agent.add(`Este es su link de pago: ${urlPago}`);
+          })
+          .catch((error) => {
+            // Maneja el error aquí
+            console.error("Error:", error);
+          });
       })
       .catch((error) => {
         // Maneja el error aquí
+        agent.add(
+          `No se encontró el numero celular del cliente ingresado, un asesor se pondrá en contacto con usted`
+        );
+        console.error("Error:", error);
+      });
+  }
+
+  function linkPagoRed(agent) {
+    const ssid = agent.parameters.ssid;
+    // URL del endpoint
+
+    const url = `https://api.wisphub.net/api/clientes/?ssid_router_wifi=${ssid}`;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        const clienteId = response.data.results[0].id_servicio;
+        const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
+
+        // Realiza la solicitud GET
+        return axios
+          .get(urlSaldo, { headers })
+          .then((response) => {
+            // Accede a la respuesta y busca el cliente por su ID de servicio
+            const data = response.data;
+            console.log(data);
+            const urlPago = response.data.url_pago;
+            agent.add(`Este es su link de pago: ${urlPago}`);
+          })
+          .catch((error) => {
+            // Maneja el error aquí
+            console.error("Error:", error);
+          });
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        agent.add(
+          `No se encontró el nombre de red del cliente ingresado, un asesor se pondrá en contacto con usted`
+        );
         console.error("Error:", error);
       });
   }
@@ -147,8 +236,23 @@ const dialogflowFulfillment = (request, response) => {
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
-  intentMap.set("client - nclient", getClient);
-  intentMap.set("client - nclient - yes - pagar", linkPago);
+  intentMap.set("Default Welcome Intent - consulta de saldo - cel", getClient);
+  intentMap.set(
+    "Default Welcome Intent - consulta de saldo - cel - yes",
+    linkPago
+  );
+  intentMap.set(
+    "Default Welcome Intent - consulta de saldo - red",
+    getClientRed
+  );
+  intentMap.set(
+    "Default Welcome Intent - consulta de saldo - mail",
+    getClientEmail
+  );
+  intentMap.set(
+    "Default Welcome Intent - consulta de saldo - red - yes",
+    linkPagoRed
+  );
 
   agent.handleRequest(intentMap);
 };
