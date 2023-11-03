@@ -233,6 +233,43 @@ const dialogflowFulfillment = (request, response) => {
       });
   }
 
+  function linkPagoEmail(agent) {
+    const email = agent.parameters.email;
+    // URL del endpoint
+
+    const url = `https://api.wisphub.net/api/clientes/?email=${email}`;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        const clienteId = response.data.results[0].id_servicio;
+        const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
+
+        // Realiza la solicitud GET
+        return axios
+          .get(urlSaldo, { headers })
+          .then((response) => {
+            // Accede a la respuesta y busca el cliente por su ID de servicio
+            const data = response.data;
+            console.log(data);
+            const urlPago = response.data.url_pago;
+            agent.add(`Este es su link de pago: ${urlPago}`);
+          })
+          .catch((error) => {
+            // Maneja el error aquí
+            console.error("Error:", error);
+          });
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        agent.add(
+          `No se encontró el nombre de red del cliente ingresado, un asesor se pondrá en contacto con usted`
+        );
+        console.error("Error:", error);
+      });
+  }
+
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
@@ -244,6 +281,10 @@ const dialogflowFulfillment = (request, response) => {
   intentMap.set(
     "Default Welcome Intent - consulta de saldo - red",
     getClientRed
+  );
+  intentMap.set(
+    "Default Welcome Intent - consulta de saldo - mail - yes",
+    linkPagoEmail
   );
   intentMap.set(
     "Default Welcome Intent - consulta de saldo - mail",
