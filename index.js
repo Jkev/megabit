@@ -270,6 +270,50 @@ const dialogflowFulfillment = (request, response) => {
       });
   }
 
+  function autoAuth(agent) {
+    console.log(`ENTRANDO EN LA FUNCION DE AUTO AUTENTICADO`);
+    const numero = request.body.originalDetectIntentRequest.payload.contact.cId;
+    const cel = numero.substr(3, 10);
+    const url = `https://api.wisphub.net/api/clientes/?telefono=${cel}`;
+
+    // Realiza la solicitud GET
+    return axios
+      .get(url, { headers })
+      .then((response) => {
+        const nombre = response.data.results[0].nombre;
+        const clienteId = response.data.results[0].id_servicio;
+        const saldo = response.data.results[0].saldo;
+        const num = parseInt(saldo);
+        if (num > 0) {
+          const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
+
+          // Realiza la solicitud GET
+          return axios
+            .get(urlSaldo, { headers })
+            .then((response) => {
+              // Accede a la respuesta y busca el cliente por su ID de servicio
+              const data = response.data;
+              console.log(data);
+              const urlPago = response.data.url_pago;
+              agent.add(`Este es su link de pago: ${urlPago}`);
+            })
+            .catch((error) => {
+              // Maneja el error aquí
+              console.error("Error:", error);
+            });
+        } else {
+          agent.add(`Su cuenta se encuentra al corriente, Muchas gracias.`);
+        }
+      })
+      .catch((error) => {
+        // Maneja el error aquí
+        agent.add(
+          `No se encontró el numero celular del cliente ingresado ${servicioId}, un asesor se pondrá en contacto con usted`
+        );
+        console.error("Error:", error);
+      });
+  }
+
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
@@ -294,6 +338,7 @@ const dialogflowFulfillment = (request, response) => {
     "Default Welcome Intent - consulta de saldo - red - yes",
     linkPagoRed
   );
+  intentMap.set("test", autoAuth);
 
   agent.handleRequest(intentMap);
 };
