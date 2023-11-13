@@ -298,7 +298,8 @@ const dialogflowFulfillment = (request, response) => {
               const data = response.data;
               console.log(data);
               const urlPago = response.data.url_pago;
-              agent.add(`Este es su link de pago: ${urlPago}`);
+              agent.add(`Nombre de cliente: ${nombre}
+Este es su link de pago: ${urlPago}`);
             })
             .catch((error) => {
               // Maneja el error aquí
@@ -315,7 +316,9 @@ const dialogflowFulfillment = (request, response) => {
               const data = response.data;
               console.log(data);
               const urlPago = response.data.url_pago;
-              agent.add(`Su cuenta se encuentra al corriente, Muchas gracias.`);
+              agent.add(
+                `*${nombre}* Su cuenta se encuentra al corriente, Muchas gracias.`
+              );
               agent.add(
                 `Si desea consultar su estado de cuenta puede hacerlo atravéz del siguiente link ${urlPago}`
               );
