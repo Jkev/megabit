@@ -283,7 +283,10 @@ const dialogflowFulfillment = (request, response) => {
         const nombre = response.data.results[0].nombre;
         const clienteId = response.data.results[0].id_servicio;
         const saldo = response.data.results[0].saldo;
+        let saldotype = typeof saldo;
+        console.log(`Esto es el tipo de saldo: ${saldotype}`);
         const num = parseInt(saldo);
+        console.log(`Esto es Num: ${num}`);
         if (num > 0) {
           const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
 
