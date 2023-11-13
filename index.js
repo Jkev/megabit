@@ -283,10 +283,7 @@ const dialogflowFulfillment = (request, response) => {
         const nombre = response.data.results[0].nombre;
         const clienteId = response.data.results[0].id_servicio;
         const saldo = response.data.results[0].saldo;
-        let saldotype = typeof saldo;
-        console.log(`Esto es el tipo de saldo: ${saldotype}`);
         const num = parseInt(saldo);
-        console.log(`Esto es Num: ${num}`);
         if (num > 0) {
           const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
 
@@ -298,35 +295,14 @@ const dialogflowFulfillment = (request, response) => {
               const data = response.data;
               console.log(data);
               const urlPago = response.data.url_pago;
-              agent.add(`Nombre de cliente: ${nombre}
-Este es su link de pago: ${urlPago}`);
+              agent.add(`Este es su link de pago: ${urlPago}`);
             })
             .catch((error) => {
               // Maneja el error aquí
               console.error("Error:", error);
             });
         } else {
-          const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
-
-          // Realiza la solicitud GET
-          return axios
-            .get(urlSaldo, { headers })
-            .then((response) => {
-              // Accede a la respuesta y busca el cliente por su ID de servicio
-              const data = response.data;
-              console.log(data);
-              const urlPago = response.data.url_pago;
-              agent.add(
-                `*${nombre}* Su cuenta se encuentra al corriente, Muchas gracias.`
-              );
-              agent.add(
-                `Si desea consultar su estado de cuenta puede hacerlo atravéz del siguiente link ${urlPago}`
-              );
-            })
-            .catch((error) => {
-              // Maneja el error aquí
-              console.error("Error:", error);
-            });
+          agent.add(`Su cuenta se encuentra al corriente, Muchas gracias.`);
         }
       })
       .catch((error) => {
