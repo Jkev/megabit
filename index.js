@@ -305,7 +305,25 @@ const dialogflowFulfillment = (request, response) => {
               console.error("Error:", error);
             });
         } else {
-          agent.add(`Su cuenta se encuentra al corriente, Muchas gracias.`);
+          const urlSaldo = `https://api.wisphub.net/api/clientes/${clienteId}/saldo/`;
+
+          // Realiza la solicitud GET
+          return axios
+            .get(urlSaldo, { headers })
+            .then((response) => {
+              // Accede a la respuesta y busca el cliente por su ID de servicio
+              const data = response.data;
+              console.log(data);
+              const urlPago = response.data.url_pago;
+              agent.add(`Su cuenta se encuentra al corriente, Muchas gracias.`);
+              agent.add(
+                `Si desea consultar su estado de cuenta puede hacerlo atravéz del siguiente link ${urlPago}`
+              );
+            })
+            .catch((error) => {
+              // Maneja el error aquí
+              console.error("Error:", error);
+            });
         }
       })
       .catch((error) => {
